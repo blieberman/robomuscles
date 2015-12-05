@@ -78,7 +78,7 @@ def uploadJson(file, collection):
                     "subzone": subzone,
                     "waveexp": waveexp,
                     "region": region,
-                    "Location": location
+                    "location": location,
                     "data": []
                 }
             )
