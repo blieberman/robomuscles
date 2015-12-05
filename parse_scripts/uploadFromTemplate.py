@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 #This script is for uploading data from our template
 
 import pymongo
@@ -5,14 +7,41 @@ import os
 import json
 import datetime
 import ast
+import cgi, os
+import cgitb; cgitb.enable()
 
+form = cgi.FieldStorage()
+
+# Get filename here.
+fileitem = form['file']
+
+# Test if the file was uploaded
+if fileitem.filename:
+   # strip leading path from file name to avoid
+   # directory traversal attacks
+   fn = os.path.basename(fileitem.filename.replace("\\", "/" ))
+   open('files/' + "test.txt", 'wb').write(fileitem.file.read())
+
+   message = 'The file "' + fn + '" was uploaded successfully'
+
+else:
+   message = 'No file was uploaded'
+
+print """\
+Content-Type: text/html\n
+<html>
+<body>
+   <p>%s</p>
+</body>
+</html>
+""" % (message,)
 
 #Loop through all data in the directory and make a json formatted output
 def main():
     from pymongo import MongoClient
-    client = MongoClient()
-    db = client.robo_data
-    uploadJson('C:/Users/James/Desktop/RoboMusselProject/justOneFile/BMRMUSCAHS124_2010_pgsql.txt', db.temp)
+    client = MongoClient('mongodb://robodb01.blieberman.me/')
+    db = client.data
+    uploadJson('files/test.txt', db.temp)
 
 #Loop through all data in the directory and make a json formatted output
 #Return string of json
