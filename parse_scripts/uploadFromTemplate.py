@@ -62,9 +62,9 @@ def uploadJson(file, collection):
         elif (line[0] == 'zone'):
             zone = line[2].rstrip()
         elif (line[0] == 'subzone'):
-            sub_zone = line[2].rstrip()
-        elif (line[0] == 'wave_exp'):
-            wave_exp = line[2].rstrip()
+            subzone = line[2].rstrip()
+        elif (line[0] == 'waveexp'):
+            waveexp = line[2].rstrip()
         elif (line[0] == 'location'):
             location = line[2].rstrip()
         else:
@@ -75,9 +75,10 @@ def uploadJson(file, collection):
                     "country": country,
                     "biomimic": biomimic,
                     "zone": zone,
-                    "sub_zone": sub_zone,
-                    "wave_exp": wave_exp,
+                    "subzone": subzone,
+                    "waveexp": waveexp,
                     "region": region,
+                    "Location": location
                     "data": []
                 }
             )
