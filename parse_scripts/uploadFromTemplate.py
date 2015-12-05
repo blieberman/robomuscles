@@ -65,6 +65,8 @@ def uploadJson(file, collection):
             sub_zone = line[2].rstrip()
         elif (line[0] == 'wave_exp'):
             wave_exp = line[2].rstrip()
+        elif (line[0] == 'location'):
+            location = line[2].rstrip()
         else:
             break
     result = collection.insert_one(
@@ -96,7 +98,7 @@ def pullData(workFile, collection, mongoID):
         temp = float(line[1].rstrip())
         date = toIsodate(line[0])
         workList.append({"Time":  date,
-                "Temp": temp})
+                "Temperature(C)": temp})
     
     #Push the data to the db
     collection.update(
