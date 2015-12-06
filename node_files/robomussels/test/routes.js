@@ -29,7 +29,7 @@ describe("Testing connection..",function(){
 describe("Testing filters..", function(){
 	it("Get biomimics.. ", function(done){
 		server.get("/filter/biomimic?").expect(200).end(function(err,res){
-			test = ['robocoral', 'robomussel', 'Water Temperature', 'robobarnacle'];
+			test = ['Water Temperature', 'robobarnacle','robocoral', 'robomussel'];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -45,7 +45,7 @@ describe("Testing filters..", function(){
 	});
 	it("Get locations.. ", function(done){
 		server.get("/filter/location?biomimic=robocoral&country=Belize").expect(200).end(function(err,res){
-			test = [ "Carrie Bow Cay","Cat Cay","Manatee Cay","Channel Cay"];
+			test = [ "Carrie Bow Cay","Cat Cay","Channel Cay","Manatee Cay"];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -53,7 +53,7 @@ describe("Testing filters..", function(){
 	});
 	it("Get regions.. ", function(done){
 		server.get("/filter/region?biomimic=robocoral&country=Belize").expect(200).end(function(err,res){
-			test = [ "Carrie Bow Cay","Cat Cay","Manatee Cay","Channel Cay"];
+			test = [ "Carrie Bow Cay","Cat Cay","Channel Cay","Manatee Cay"];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -61,7 +61,7 @@ describe("Testing filters..", function(){
 	});
 	it("Get sites.. ", function(done){
 		server.get("/filter/site?biomimic=robocoral&country=Belize").expect(200).end(function(err,res){
-			test = ["BZSCCB", "BZSCCC", "BZSCMC", "BZSCCH"];
+			test = ["BZSCCB", "BZSCCC", "BZSCCH", "BZSCMC"];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -69,7 +69,7 @@ describe("Testing filters..", function(){
 	});
 	it("Get zones.. ", function(done){
 		server.get("/filter/zone?biomimic=robocoral&country=Belize&region=Cat Cay").expect(200).end(function(err,res){
-			test = ["5m","0m","10m"];
+			test = ["2m", "5m","10m","1m","0m"];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -77,7 +77,7 @@ describe("Testing filters..", function(){
 	});
 	it("Get subzone.. ", function(done){
 		server.get("/filter/subzone?biomimic=robocoral&country=Belize&region=Cat Cay").expect(200).end(function(err,res){
-			test = ["Backreef"];
+			test = ["Backreef","Lagoon"];
 			res.status.should.equal(200);
 			res.body.message.should.eql(test);
 			done();
@@ -142,6 +142,110 @@ describe("Retrieve data",function(){
 		});
 	});
 });
+
+
+describe("Testing statistics for DAILY intervals..", function(){
+	it("Get minimum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-03-17&mathOp=min&interval=daily").expect(200).end(function(err,res){
+			test = [ { _id : { "day": "16",
+							  "month": "03",
+							  "year": "2002" },
+					   "retVal": 26.3 } ];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+	
+	it("Get maximum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-03-17&mathOp=max&interval=daily").expect(200).end(function(err,res){
+			test = [ { _id : { "day": "16",
+							  "month": "03",
+							  "year": "2002" },
+					   "retVal": 26.4 } ];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});	
+	
+	it("Get average.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-03-17&mathOp=avg&interval=daily").expect(200).end(function(err,res){
+			test = [ { _id : { "day": "16",
+							  "month": "03",
+							  "year": "2002" },
+					   "retVal": 26.309999999999988 } ];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+});
+
+describe("Testing statistics for MONTHLY intervals..", function(){	
+	it("Get minimum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=min&interval=monthly").expect(200).end(function(err,res){
+			test = [{ _id: { month: '05', year: '2002' }, retVal: 28.2 },
+   					{ _id: { month: '04', year: '2002' }, retVal: 27.3 },
+   					{ _id: { month: '03', year: '2002' }, retVal: 26.1 } ];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});	
+	
+	it("Get maximum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=max&interval=monthly").expect(200).end(function(err,res){
+			test = [{ _id: { month: '05', year: '2002' }, retVal: 28.4 },
+ 				 	{ _id: { month: '04', year: '2002' }, retVal: 28.4 },
+  	 				{ _id: { month: '03', year: '2002' }, retVal: 27.7 }];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+	
+	it("Get average.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=avg&interval=monthly").expect(200).end(function(err,res){
+			test = [{ _id: { month: '05', year: '2002' }, retVal: 28.285590277777636 	},
+   					{ _id: { month: '04', year: '2002' }, retVal: 27.81578703703576 	},
+  					{ _id: { month: '03', year: '2002' }, retVal: 26.843424657534367	}];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+});
+
+describe("Testing statistics for YEARLY intervals..", function(){	
+	it("Get minimum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=min&interval=yearly").expect(200).end(function(err,res){
+			test = [ { _id: { year: '2002' }, retVal: 26.1 }];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});	
+	
+	it("Get maximum.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=max&interval=yearly").expect(200).end(function(err,res){
+			test = [{ _id: { year: '2002' }, retVal: 28.4 }];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+	
+	it("Get average.. ", function(done){
+		server.get("/data?biomimic=robocoral&region=Cat%20Cay&subzone=Backreef&zone=10m&startDate=2002-03-16&endDate=2002-05-17&mathOp=avg&interval=yearly").expect(200).end(function(err,res){
+			test = [{ _id: { year: '2002' }, retVal: 27.696993419560684 }];
+			res.status.should.equal(200);
+			res.body.message.should.eql(test);
+			done();
+		});
+	});
+});
+
 /* Get distinct filter options using the request paramaters 
 router.get('/filter/:param', function(req,res){
      var condition = getCondition(req);
