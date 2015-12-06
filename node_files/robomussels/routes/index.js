@@ -93,6 +93,17 @@ function getDateGrouping(req){
 	return condition; 
 }
 
+/* Parses the obj to concat according to: yearly, daily, or monthly */
+function getDateConcat(req){
+	if (req.query.interval == "yearly"){ 
+		return { $concat : ["$_id.year"] }; }
+	
+	if (req.query.interval == "monthly"){
+		return { $concat : ["$_id.year", "-", "$_id.month"]}; }
+	
+	return { $concat : ["$_id.year", "-", "$_id.month","-","$_id.day"] }
+}
+
 /* Parses the date into years, months and days */
 function parseDates(req){
 	var condition = {};
@@ -105,10 +116,19 @@ function parseDates(req){
 }
 
 /* Get the data entries using the request parameters */
+router.get('/document/data', function(req,res){
+	var response = {};
+     	var condition = getCondition(req);
+		mongoOp.aggregate( {$match: condition},
+							function(err,data){ callback(err,data,res);}); 
+});
+
+/* Get the data entries using the request parameters */
 router.get('/data', function(req,res){
 	var response = {};
      	var condition = getCondition(req);
      	var time_condition = getTimeCondition(req);
+     	
         if (!req.query.mathOp && !req.query.interval) {
 			mongoOp.aggregate( {$match: condition},    // Filters on everything but date
   				{$unwind: "$data"},    			// Creates individual docs for time & temp
@@ -127,6 +147,12 @@ router.get('/data', function(req,res){
                 {$match: time_condition},    	// Filters on dates
                 {$project : date_interval }, 	// Breaks down into: temp, year, month, day
 				{$group: math_operation },    	// Performs math operation and does grouping
+				{$sort : { '_id.year': 1, 
+						   '_id.month': 1, 
+						   '_id.day': 1 }},
+				{$project: { _id : 0, 
+							 date: getDateConcat(req), 
+							 ret_val : "$retVal" }},
 				function(err,data){ callback(err,data,res);} );
 		} else {
 			response = {"error": true, "message" : "Requires BOTH an operation & date interval or NEITHER."};
